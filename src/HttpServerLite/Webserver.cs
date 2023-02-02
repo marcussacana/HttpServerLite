@@ -108,6 +108,22 @@ namespace HttpServerLite
         }
 
         /// <summary>
+        /// TCP Log Output.
+        /// </summary>
+        public Action<string> Logger
+        {
+            get
+            {
+                return _TcpServer.Logger;
+            }
+            set
+            {
+                if (value == null) throw new ArgumentNullException(nameof(Logger));
+                _TcpServer.Logger = value;
+            }
+        }
+
+        /// <summary>
         /// Default pages served by the webserver.
         /// </summary>
         public WebserverPages Pages

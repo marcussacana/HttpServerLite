@@ -1388,6 +1388,11 @@
             Webserver routes.
             </summary>
         </member>
+        <member name="P:HttpServerLite.Webserver.Logger">
+            <summary>
+            TCP Log Output.
+            </summary>
+        </member>
         <member name="P:HttpServerLite.Webserver.Pages">
             <summary>
             Default pages served by the webserver.
