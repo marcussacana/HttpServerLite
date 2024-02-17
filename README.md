@@ -1,3 +1,14 @@
+# OBSOLETE
+
+HttpServerLite has been merged with the .NET Foundation project [WatsonWebserver](https://github.com/dotnet/WatsonWebserver) as a subproject called ```Watson.Lite```.  
+
+This repository has been moved to public archive as a result.  
+
+We are thankful to the community that has contributed to this work and welcome you to continue efforts on the new repository!
+
+
+
+
 ![alt tag](https://raw.githubusercontent.com/jchristn/HttpServerLite/master/Assets/icon.ico)
 
 # HttpServerLite
@@ -6,25 +17,17 @@
 
 TCP-based user-space HTTP and HTTPS server, written in C#, with no dependency on http.sys.
 
-## New in v1.2.x
+## New in v2.1.x
 
-- Less restrictive handling of reading chunks
-- Added constructor with X509Certificate2, thank you @samisil
-- Add a event WebserverEvents.ConnectionDenied
-- Added Callbacks object with callback AuthorizeConnection
-- Added ```Callbacks``` object with callback ```AuthorizeConnection```
-- Parameter routes
-- Breaking changes to synchronize HttpRequest properties with Watson Webserver
-- More efficiency in internal send methods, thank you @marcussacana
-- Removal of Newtonsoft.Json
-- Dependency update
-- Case insensitive dictionaries
+- ```HostBuilder``` feature to quickly build servers, thank you @sapurtcomputer30!
+- Bugfix for ```HttpContext.HttpRequest.Data``` not ending, thank you @ChZhongPengCheng33
 
 ## Special Thanks
 
 I'd like to extend a special thanks to those that have provided motivation or otherwise directly helped make HttpServerLite better.
 
-- @winkmichael @Job79 @MartyIX @sqlnew @SaintedPsycho @Return25 @marcussacana @samisil
+- @winkmichael @Job79 @MartyIX @sqlnew @SaintedPsycho @Return25 @marcussacana @samisil 
+- @Jump-Suit @sapurtcomputer30 @ChZhongPengCheng33 @bobaoapae
 
 ## Performance
 
@@ -161,6 +164,37 @@ private static bool AuthorizeConnection(string ipAddress, int port)
   return true;  // permit
   return false; // deny
 }
+```
+
+## HostBuilder
+
+```HostBuilder``` helps you set up your server much more easily by introducing a chain of settings and routes instead of using the server class directly.
+
+```csharp
+using WatsonWebserver.Extensions.HostBuilderExtension;
+
+Server server = new HostBuilder("127.0.0.1", 8000, false, DefaultRoute)
+                .MapStaticRoute(WatsonWebserver.HttpMethod.GET, GetUrlsRoute, "/links")
+                .MapStaticRoute(WatsonWebserver.HttpMethod.POST, CheckLoginRoute, "/login")
+                .MapStaticRoute(WatsonWebserver.HttpMethod.POST, TestRoute, "/test")
+                .Build();
+
+server.Start();
+
+Console.WriteLine("Server started");
+Console.ReadKey();
+
+static async Task DefaultRoute(HttpContext ctx) => 
+    await ctx.Response.SendAsync("Hello from default route!"); 
+
+static async Task GetUrlsRoute(HttpContext ctx) => 
+    await ctx.Response.SendAsync("Here are your links!"); 
+
+static async Task CheckLoginRoute(HttpContext ctx) => 
+    await ctx.Response.SendAsync("Checking your login!"); 
+
+static async Task TestRoute(HttpContext ctx) => 
+    await ctx.Response.SendAsync("Hello from the test route!"); 
 ```
 
 ## Accessing from Outside Localhost

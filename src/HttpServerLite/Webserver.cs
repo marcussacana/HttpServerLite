@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -227,7 +228,7 @@ namespace HttpServerLite
                 _Settings.Ssl.SslCertificate = sslCertificate;
             }
 
-            InitializeServer(); 
+            InitializeServer();
         }
 
         /// <summary>
@@ -460,8 +461,6 @@ namespace HttpServerLite
 
         private async void ClientConnected(object sender, ClientConnectedEventArgs args)
         { 
-            DateTime startTime = DateTime.Now;
-
             #region Parse-IP-Port
 
             string ipPort = args.Client.IpPort;
@@ -572,7 +571,7 @@ namespace HttpServerLite
 
                 #region Check-Access-Control
 
-                if (!_Settings.AccessControl.Permit(ctx.Request.Source.IpAddress))
+                if (!_Settings.AccessControl.CheckIfPermitted(ctx.Request.Source.IpAddress))
                 {
                     _Events.HandleRequestDenied(this, new RequestEventArgs(ctx));
 
@@ -621,6 +620,8 @@ namespace HttpServerLite
                                 ctx.Request.Method.ToString() + " " + ctx.Request.Url.Full);
                         }
 
+                        ctx.Timestamp.End = DateTime.UtcNow;
+                        _Routes.PostRouting?.Invoke(ctx);
                         return;
                     }
                 }
@@ -641,6 +642,8 @@ namespace HttpServerLite
                         }
 
                         await _Routes.ContentHandler.Process(ctx, _Token).ConfigureAwait(false);
+                        ctx.Timestamp.End = DateTime.UtcNow;
+                        _Routes.PostRouting?.Invoke(ctx);
                         return;
                     }
                 }
@@ -660,6 +663,8 @@ namespace HttpServerLite
                     }
 
                     await handler(ctx).ConfigureAwait(false);
+                    ctx.Timestamp.End = DateTime.UtcNow;
+                    _Routes.PostRouting?.Invoke(ctx);
                     return;
                 }
 
@@ -667,11 +672,11 @@ namespace HttpServerLite
 
                 #region Parameter-Routes
 
-                Dictionary<string, string> parameters = null;
+                NameValueCollection parameters = null;
                 handler = _Routes.Parameter.Match(ctx.Request.Method, ctx.Request.Url.WithoutQuery, out parameters);
                 if (handler != null)
                 {
-                    ctx.Request.Url.Parameters = new Dictionary<string, string>(parameters);
+                    ctx.Request.Url.Parameters = new NameValueCollection(parameters);
 
                     if (_Settings.Debug.Routing)
                     {
@@ -681,6 +686,8 @@ namespace HttpServerLite
                     }
 
                     await handler(ctx).ConfigureAwait(false);
+                    ctx.Timestamp.End = DateTime.UtcNow;
+                    _Routes.PostRouting?.Invoke(ctx);
                     return;
                 }
 
@@ -699,6 +706,8 @@ namespace HttpServerLite
                     }
 
                     await handler(ctx).ConfigureAwait(false);
+                    ctx.Timestamp.End = DateTime.UtcNow;
+                    _Routes.PostRouting?.Invoke(ctx);
                     return;
                 }
 
@@ -716,7 +725,6 @@ namespace HttpServerLite
                 if (_Routes.Default != null)
                 {
                     await _Routes.Default(ctx).ConfigureAwait(false);
-                    return;
                 }
                 else
                 {
@@ -725,15 +733,11 @@ namespace HttpServerLite
                     await ctx.Response.SendAsync(_Pages.Default404Page.Content, _Token).ConfigureAwait(false);
                 }
 
+                ctx.Timestamp.End = DateTime.UtcNow;
+                _Routes.PostRouting?.Invoke(ctx);
+                return;
+
                 #endregion  
-            }
-            catch (TaskCanceledException)
-            {
-                return;
-            }
-            catch (ObjectDisposedException)
-            {
-                return;
             }
             catch (Exception e)
             {
@@ -741,9 +745,17 @@ namespace HttpServerLite
                 {
                     ctx.Response.StatusCode = 500;
                     ctx.Response.ContentType = _Pages.Default500Page.ContentType;
-                    await ctx.Response.SendAsync(_Pages.Default500Page.Content, _Token).ConfigureAwait(false);
 
-                    _Events.Logger?.Invoke(_Header + "exception: " + Environment.NewLine + SerializationHelper.SerializeJson(e, true));
+                    try
+                    {
+                        await ctx.Response.SendAsync(_Pages.Default500Page.Content, _Token).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        // ignored, exception here is due to disconnected client
+                        // this we cannot send the error page
+                    }
+
                     _Events.HandleException(this, new ExceptionEventArgs(ctx, e));
                 }
 
@@ -755,16 +767,16 @@ namespace HttpServerLite
 
                 if (ctx != null)
                 {
-                    double totalMs = TotalMsFrom(startTime);
+                    ctx.Timestamp.End = DateTime.UtcNow;
 
-                    _Events.HandleResponseSent(this, new ResponseEventArgs(ctx, totalMs));
+                    _Events.HandleResponseSent(this, new ResponseEventArgs(ctx, ctx.Timestamp.TotalMs.Value));
 
                     if (_Settings.Debug.Responses)
                     { 
                         _Events.Logger?.Invoke(
                             _Header + ctx.Request.Source.IpAddress + ":" + ctx.Request.Source.Port + " " +
                             ctx.Request.Method.ToString() + " " + ctx.Request.Url.Full + ": " +
-                            ctx.Response.StatusCode + " [" + totalMs + "ms]");
+                            ctx.Response.StatusCode + " [" + ctx.Timestamp.TotalMs.Value + "ms]");
                     }
 
                     if (ctx.Response.ContentLength != null)
@@ -782,20 +794,6 @@ namespace HttpServerLite
 
         }
         
-        private double TotalMsFrom(DateTime startTime)
-        {
-            try
-            {
-                DateTime endTime = DateTime.Now;
-                TimeSpan totalTime = (endTime - startTime);
-                return totalTime.TotalMilliseconds;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-        }
-
         #endregion
     }
 }
