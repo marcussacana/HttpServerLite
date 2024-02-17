@@ -39,6 +39,11 @@ namespace HttpServerLite
         public Func<HttpContext, Task<bool>> PreRouting = null;
 
         /// <summary>
+        /// Function to call after routing.  
+        /// </summary>
+        public Func<HttpContext, Task> PostRouting = null;
+
+        /// <summary>
         /// Content routes; i.e. routes to specific files or folders for GET and HEAD requests.
         /// </summary>
         public ContentRouteManager Content
@@ -182,39 +187,49 @@ namespace HttpServerLite
 
         private async Task PreflightInternal(HttpContext ctx)
         {
-            ctx.Response.StatusCode = 200;
-
-            string[] requestedHeaders = null;
-            if (ctx.Request.Headers != null)
+            try
             {
-                foreach (KeyValuePair<string, string> curr in ctx.Request.Headers)
+                ctx.Response.StatusCode = 200;
+
+                string[] requestedHeaders = null;
+                if (ctx.Request.Headers != null)
                 {
-                    if (String.IsNullOrEmpty(curr.Key)) continue;
-                    if (String.IsNullOrEmpty(curr.Value)) continue;
-                    if (String.Compare(curr.Key.ToLower(), "access-control-request-headers") == 0)
+                    for (int i = 0; i < ctx.Request.Headers.Count; i++)
                     {
-                        requestedHeaders = curr.Value.Split(',');
-                        break;
+                        string key = ctx.Request.Headers.GetKey(i);
+                        string val = ctx.Request.Headers.Get(i);
+
+                        if (String.IsNullOrEmpty(key)) continue;
+                        if (String.IsNullOrEmpty(val)) continue;
+                        if (String.Compare(key.ToLower(), "access-control-request-headers") == 0)
+                        {
+                            requestedHeaders = val.Split(',');
+                            break;
+                        }
                     }
                 }
-            }
 
-            string headers = "";
+                string headers = "";
 
-            if (requestedHeaders != null)
-            {
-                int addedCount = 0;
-                foreach (string curr in requestedHeaders)
+                if (requestedHeaders != null)
                 {
-                    if (String.IsNullOrEmpty(curr)) continue;
-                    if (addedCount > 0) headers += ", ";
-                    headers += ", " + curr;
-                    addedCount++;
+                    int addedCount = 0;
+                    foreach (string curr in requestedHeaders)
+                    {
+                        if (String.IsNullOrEmpty(curr)) continue;
+                        if (addedCount > 0) headers += ", ";
+                        headers += ", " + curr;
+                        addedCount++;
+                    }
                 }
-            }
 
-            ctx.Response.ContentLength = 0;
-            await ctx.Response.SendAsync(0);
+                ctx.Response.ContentLength = 0;
+                await ctx.Response.SendAsync(0);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         #endregion

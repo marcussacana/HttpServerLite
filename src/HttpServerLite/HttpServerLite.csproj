@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0</TargetFrameworks>
-		<Version>1.2.12</Version>
+		<Version>2.1.5</Version>
 		<Authors>Joel Christner</Authors>
 		<Company>Joel Christner</Company>
 		<Product>HttpServerLite</Product>
@@ -12,10 +12,14 @@
 		<RepositoryUrl>https://github.com/jchristn/httpserverlite</RepositoryUrl>
 		<RepositoryType>Github</RepositoryType>
 		<PackageTags>http https server rest restful api async</PackageTags>
-		<PackageReleaseNotes>Case insensitive dictionaries</PackageReleaseNotes>
+		<PackageReleaseNotes>HostBuilder feature from @sapurtcomputer30</PackageReleaseNotes>
 		<PackageIconUrl></PackageIconUrl>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>icon.png</PackageIcon>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>..\..\httpserverlite.snk</AssemblyOriginatorKeyFile>
+		<Copyright>(c)2023 Joel Christner</Copyright>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
@@ -79,14 +83,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CavemanTcp" Version="2.0.0" />
+		<PackageReference Include="CavemanTcp" Version="2.0.1" />
 		<PackageReference Include="IpMatcher" Version="1.0.4.4" />
-		<PackageReference Include="RegexMatcher" Version="1.0.7.2" />
-		<PackageReference Include="System.Text.Json" Version="7.0.1" />
-		<PackageReference Include="UrlMatcher" Version="1.0.0.3" />
+		<PackageReference Include="RegexMatcher" Version="1.0.8" />
+		<PackageReference Include="System.Text.Json" Version="7.0.3" />
+		<PackageReference Include="Timestamps" Version="1.0.2" />
+		<PackageReference Include="UrlMatcher" Version="2.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 		<None Include="Assets\icon.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
@@ -99,13 +108,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Assets\icon.ico">
+		<None Include="Assets\icon.ico">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="Assets\icon.png">
+		<None Include="Assets\icon.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="HttpServerLite.xml">
+		<None Include="HttpServerLite.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>

@@ -337,9 +337,100 @@
             Exception.
             </summary>
         </member>
+        <member name="T:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder">
+            <summary>
+            Host builder.
+            </summary>
+        </member>
+        <member name="P:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder.Server">
+            <summary>
+            Webserver.
+            </summary>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder.#ctor(System.String,System.Int32,System.Func{HttpServerLite.HttpContext,System.Threading.Tasks.Task},System.Security.Cryptography.X509Certificates.X509Certificate2)">
+            <summary>
+            Instantiate.
+            </summary>
+            <param name="ip">IP address on which to listen.</param>
+            <param name="port">Port on which to listen.</param>
+            <param name="defaultRoute">Default route.</param>
+            <param name="sslCertificate">SSL certificate.</param>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder.MapDynamicRoute(HttpServerLite.HttpMethod,System.Func{HttpServerLite.HttpContext,System.Threading.Tasks.Task},System.Text.RegularExpressions.Regex)">
+            <summary>
+            Apply a dynamic route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="action">Action.</param>
+            <param name="regex">Regular expression.</param>
+            <returns>Host builder.</returns>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder.MapParameteRoute(HttpServerLite.HttpMethod,System.Func{HttpServerLite.HttpContext,System.Threading.Tasks.Task},System.String)">
+            <summary>
+            Apply a parameter route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="action">Action.</param>
+            <param name="routePath">Route path.</param>
+            <returns>Host builder.</returns>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder.MapStaticRoute(HttpServerLite.HttpMethod,System.Func{HttpServerLite.HttpContext,System.Threading.Tasks.Task},System.String)">
+            <summary>
+            Apply a static route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="action">Action.</param>
+            <param name="routePath">Route path.</param>
+            <returns>Host builder.</returns>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.HostBuilder.Build">
+            <summary>
+            Build the server.
+            </summary>
+            <returns>Server.</returns>
+        </member>
+        <member name="T:HttpServerLite.Extensions.HostBuilderExtension.IHostBuilder`2">
+            <summary>
+            Host builder interface.
+            </summary>
+            <typeparam name="HostBuilder">Host builder.</typeparam>
+            <typeparam name="InputAction">Input action.</typeparam>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.IHostBuilder`2.MapStaticRoute(HttpServerLite.HttpMethod,`1,System.String)">
+            <summary>
+            Apply a static route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="action">Action.</param>
+            <param name="routePath">Route path.</param>
+            <returns>Host builder.</returns>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.IHostBuilder`2.MapParameteRoute(HttpServerLite.HttpMethod,`1,System.String)">
+            <summary>
+            Apply a parameter route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="action">Action.</param>
+            <param name="routePath">Route path.</param>
+            <returns>Host builder.</returns>
+        </member>
+        <member name="M:HttpServerLite.Extensions.HostBuilderExtension.IHostBuilder`2.MapDynamicRoute(HttpServerLite.HttpMethod,`1,System.Text.RegularExpressions.Regex)">
+            <summary>
+            Apply a dynamic route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="action">Action.</param>
+            <param name="regex">Regular expression.</param>
+            <returns>Host builder.</returns>
+        </member>
         <member name="T:HttpServerLite.HttpContext">
             <summary>
             HTTP context including both request and response.
+            </summary>
+        </member>
+        <member name="P:HttpServerLite.HttpContext.Timestamp">
+            <summary>
+            Time information for start, end, and total runtime.
             </summary>
         </member>
         <member name="P:HttpServerLite.HttpContext.Request">
@@ -540,29 +631,6 @@
             <param name="pretty">True to enable pretty print.</param>
             <returns>JSON string.</returns>
         </member>
-        <member name="M:HttpServerLite.HttpRequest.RetrieveHeaderValue(System.String)">
-            <summary>
-            Retrieve a specified header value from either the headers or the querystring (case insensitive).
-            </summary>
-            <param name="key"></param>
-            <returns></returns>        
-        </member>
-        <member name="M:HttpServerLite.HttpRequest.HeaderExists(System.String,System.Boolean)">
-            <summary>
-            Determine if a header exists.
-            </summary>
-            <param name="key">Header key.</param>
-            <param name="caseSensitive">Specify whether a case sensitive search should be used.</param>
-            <returns>True if exists.</returns>
-        </member>
-        <member name="M:HttpServerLite.HttpRequest.QuerystringExists(System.String,System.Boolean)">
-            <summary>
-            Determine if a querystring entry exists.
-            </summary>
-            <param name="key">Querystring key.</param>
-            <param name="caseSensitive">Specify whether a case sensitive search should be used.</param>
-            <returns>True if exists.</returns>
-        </member>
         <member name="M:HttpServerLite.HttpRequest.ReadChunk(System.Threading.CancellationToken)">
             <summary>
             For chunked transfer-encoded requests, read the next chunk.
@@ -578,6 +646,34 @@
             </summary>
             <typeparam name="T">Type.</typeparam>
             <returns>Object of type specified.</returns>
+        </member>
+        <member name="M:HttpServerLite.HttpRequest.HeaderExists(System.String)">
+            <summary>
+            Determine if a header exists.
+            </summary>
+            <param name="key">Header key.</param>
+            <returns>True if exists.</returns>
+        </member>
+        <member name="M:HttpServerLite.HttpRequest.QuerystringExists(System.String)">
+            <summary>
+            Determine if a querystring entry exists.
+            </summary>
+            <param name="key">Querystring key.</param>
+            <returns>True if exists.</returns>
+        </member>
+        <member name="M:HttpServerLite.HttpRequest.RetrieveHeaderValue(System.String)">
+            <summary>
+            Retrieve a header (or querystring) value.
+            </summary>
+            <param name="key">Key.</param>
+            <returns>Value.</returns>
+        </member>
+        <member name="M:HttpServerLite.HttpRequest.RetrieveQueryValue(System.String)">
+            <summary>
+            Retrieve a querystring value.
+            </summary>
+            <param name="key">Key.</param>
+            <returns>Value.</returns>
         </member>
         <member name="T:HttpServerLite.HttpRequest.SourceDetails">
             <summary>
@@ -678,7 +774,7 @@
             The protocol and version.
             </summary>
         </member>
-        <member name="F:HttpServerLite.HttpResponse.StatusCode">
+        <member name="P:HttpServerLite.HttpResponse.StatusCode">
             <summary>
             The HTTP status code to return to the requestor (client).
             </summary>
@@ -1072,7 +1168,7 @@
             <param name="path">URL path.</param>
             <returns>True if exists.</returns>
         </member>
-        <member name="M:HttpServerLite.ParameterRouteManager.Match(HttpServerLite.HttpMethod,System.String,System.Collections.Generic.Dictionary{System.String,System.String}@)">
+        <member name="M:HttpServerLite.ParameterRouteManager.Match(HttpServerLite.HttpMethod,System.String,System.Collections.Specialized.NameValueCollection@)">
             <summary>
             Match a request method and URL to a handler method.
             </summary>
@@ -1601,6 +1697,11 @@
             Function to call prior to routing.  
             Return 'true' if the connection should be terminated.
             Return 'false' to allow the connection to continue routing.
+            </summary>
+        </member>
+        <member name="F:HttpServerLite.WebserverRoutes.PostRouting">
+            <summary>
+            Function to call after routing.  
             </summary>
         </member>
         <member name="P:HttpServerLite.WebserverRoutes.Content">
