@@ -17,7 +17,6 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageIcon>icon.png</PackageIcon>
 		<SignAssembly>True</SignAssembly>
-		<AssemblyOriginatorKeyFile>..\..\httpserverlite.snk</AssemblyOriginatorKeyFile>
 		<Copyright>(c)2023 Joel Christner</Copyright>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
