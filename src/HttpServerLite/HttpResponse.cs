@@ -786,6 +786,8 @@ namespace HttpServerLite
             {
                 case 200:
                     return "OK";
+                case 206:
+                    return "Partial Content";
                 case 201:
                     return "Created";
                 case 301:
