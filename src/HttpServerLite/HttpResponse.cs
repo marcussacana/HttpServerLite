@@ -815,7 +815,7 @@ namespace HttpServerLite
                 case 503:
                     return "Service Unavailable";
                 default:
-                    return "Unknown";
+                    return StatusDescription ?? "Unknown";
             }
         }
 
